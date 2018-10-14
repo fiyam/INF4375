@@ -13,19 +13,11 @@ public class SmartHouse {
 		////ZMQ.Socket publisher;
 		//ZMQ.Socket subscriber;
 		
-                    Boolean heater = null;    
-                    Boolean ac = null; 
-                    Boolean lights = null;
-                    Boolean door_lock = null;
-
-    
+                 
                         
 		try (ZContext context = new ZContext()) {
 			
-                    
-                    
-                    
-                    
+
 
                         Socket subscriber = context.createSocket(SocketType.SUB); 
                         if (args.length == 1) 
@@ -53,19 +45,57 @@ public class SmartHouse {
                             String data = subscriber.recvStr(); 
                             
                              if( topic == "temperature")  {
-                             
-                                 if( data  <  19){
+                             int dataInt = Integer.parseInt(data);
+                                 if( dataInt  <  19){
                                  publisher.send("heater", ZMQ.SNDMORE); 
                                   System.out.println(topic + " -> " + data); 
                         
                                     }
-                                  if( data  > 23 )){
+                                  if( dataInt  > 23 ){
                                  publisher.send("ac", ZMQ.SNDMORE); 
                                   System.out.println(topic + " -> " + data); 
                                     }
                              }
                             
                              
+                                if( topic == "activity")  {
+                                    int dataInt = Integer.parseInt(data);
+                                 if( dataInt  == 1 ){
+                                 publisher.send("lights", ZMQ.SNDMORE); 
+                                  System.out.println(topic + " -> " + data); 
+                        
+                                    }
+                                  if( dataInt  == 0 ){
+                                 publisher.send("lights", ZMQ.SNDMORE); 
+                                  System.out.println(topic + " -> " + data); 
+                                    }
+                             }
+                            
+                                if( topic == "time")  {
+                                 if( data   == "on" ){
+                                 publisher.send("heater", ZMQ.SNDMORE); 
+                                  System.out.println(topic + " -> " + data); 
+                        
+                                    }
+                                  if( dataInt  > 23 ){
+                                 publisher.send("ac", ZMQ.SNDMORE); 
+                                  System.out.println(topic + " -> " + data); 
+                                    }
+                             }
+                            
+                                if( topic == "door_lock_sensor")  {
+                             int dataInt = Integer.parseInt(data);
+                                 if( dataInt  <  19){
+                                 publisher.send("heater", ZMQ.SNDMORE); 
+                                  System.out.println(topic + " -> " + data); 
+                        
+                                    }
+                                  if( dataInt  > 23 ){
+                                 publisher.send("ac", ZMQ.SNDMORE); 
+                                  System.out.println(topic + " -> " + data); 
+                                    }
+                             }
+                            
                              
                              
                             System.out.println(topic + " -> " + data); 
