@@ -44,55 +44,82 @@ public class SmartHouse {
                                 break; 
                             String data = subscriber.recvStr(); 
                             
-                             if( topic == "temperature")  {
-                             int dataInt = Integer.parseInt(data);
+                            
+                            
+                            System.out.println(topic);
+                            System.out.println(data);
+                            
+                            Float dataInt = Float.parseFloat(data);
+                                 
+                            
+                             if( "temperature".equals(topic))  {
+                                 
+                                  
+                                 System.out.println(" eeeeeeeeeeeeeeeeeeeeeeeeeeeeentrer dans if ");
+                                 
+                                 System.out.println(data);
+                                
+                           
+                             
+                             
+                              System.out.println(dataInt);
+                                
+                             
+                             
                                  if( dataInt  <  19){
-                                 publisher.send("heater", ZMQ.SNDMORE); 
-                                  System.out.println(topic + " -> " + data); 
+                                     
+                                     System.out.println(" <19 ");
+                                 //publisher.send("heater", ZMQ.SNDMORE);
+                                 publisher.sendMore("heater");
+                                 publisher.send("on");
+                                 System.out.println(topic + " -> " + data);
                         
                                     }
                                   if( dataInt  > 23 ){
                                  publisher.send("ac", ZMQ.SNDMORE); 
-                                  System.out.println(topic + " -> " + data); 
+                                 publisher.send("off");
                                     }
                              }
                             
                              
-                                if( topic == "activity")  {
-                                    int dataInt = Integer.parseInt(data);
+                                if( "activity".equals(topic))  {
+                                    
+                                    System.out.println(" eeeeeeeeeeeeeeeeeeeeeeeeeeeeentrer dans if ");
+                                    //int dataInt = Integer.parseInt(data);
                                  if( dataInt  == 1 ){
                                  publisher.send("lights", ZMQ.SNDMORE); 
-                                  System.out.println(topic + " -> " + data); 
                         
                                     }
                                   if( dataInt  == 0 ){
                                  publisher.send("lights", ZMQ.SNDMORE); 
-                                  System.out.println(topic + " -> " + data); 
                                     }
                              }
                             
-                                if( topic == "time")  {
+                                if( "time".equals(topic))  {
+                                    System.out.println(" eeeeeeeeeeeeeeeeeeeeeeeeeeeeentrer dans if ");
+                                    
+                                    
                                  if( data   == "on" ){
                                  publisher.send("heater", ZMQ.SNDMORE); 
-                                  System.out.println(topic + " -> " + data); 
                         
                                     }
+                                 //int dataInt = Integer.parseInt(data);
                                   if( dataInt  > 23 ){
                                  publisher.send("ac", ZMQ.SNDMORE); 
-                                  System.out.println(topic + " -> " + data); 
                                     }
                              }
                             
-                                if( topic == "door_lock_sensor")  {
-                             int dataInt = Integer.parseInt(data);
+                                if( "door_lock_sensor".equals(topic))  {
+                                    
+                                    System.out.println(" eeeeeeeeeeeeeeeeeeeeeeeeeeeeentrer dans if ");
+                                    
+                                   // int dataInt = Integer.parseInt(data);
                                  if( dataInt  <  19){
                                  publisher.send("heater", ZMQ.SNDMORE); 
-                                  System.out.println(topic + " -> " + data); 
                         
                                     }
                                   if( dataInt  > 23 ){
                                  publisher.send("ac", ZMQ.SNDMORE); 
-                                  System.out.println(topic + " -> " + data); 
                                     }
                              }
                             
@@ -101,14 +128,14 @@ public class SmartHouse {
                             System.out.println(topic + " -> " + data); 
                             
 
-                            publisher.send("lights", ZMQ.SNDMORE); 
-                            publisher.send("door_lock", ZMQ.SNDMORE); 
+                           // publisher.send("lights", ZMQ.SNDMORE); 
+                          //  publisher.send("door_lock", ZMQ.SNDMORE); 
                             
                             
                            
                             
                             
-                            publisher.send("on"); 
+                           // publisher.send("on"); 
                        }
 
                    
