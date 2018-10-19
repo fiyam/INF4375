@@ -34,8 +34,10 @@ public class SmartHouse {
                         subscriber.subscribe("activity"); 
                         subscriber.subscribe("time"); 
                         subscriber.subscribe("door_lock_sensor"); 
-
-                            
+                        
+                        
+                        System.out.println(" House simulator running [...]");
+                           
                         while (true) { 
                             String topic = subscriber.recvStr(); 
                            if (topic == null) 
