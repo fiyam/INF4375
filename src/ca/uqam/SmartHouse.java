@@ -36,7 +36,6 @@ public class SmartHouse {
                         subscriber.subscribe("door_lock_sensor"); 
 
                             
-
                         while (true) { 
                             String topic = subscriber.recvStr(); 
                            if (topic == null) 
@@ -51,24 +50,22 @@ public class SmartHouse {
                                  if( dataFloat  <  19){
                                      System.out.println(topic + " -> " + data);
                                      publisher.send("heater", ZMQ.SNDMORE);
-                                     System.out.println("démarrer le chauffage ");
+                                     System.out.println("Démarrage du chauffage");
                                      publisher.send("on");
-                                     
-                                 
-                        
+
                                     }
                                  if( dataFloat  > 19){
                                      System.out.println(topic + " -> " + data);
                                      publisher.send("heater", ZMQ.SNDMORE);
-                                     System.out.println("Arrêter le chauffage ");
-                                     publisher.send("on");
-                                     
+                                     System.out.println("Arrête du chauffage");
+                                     publisher.send("off"); 
                         
                                     }
+                                 
                                   if( dataFloat  > 23 ){
                                  publisher.send("ac", ZMQ.SNDMORE); 
                                  System.out.println("Démarrer Air climatisé");
-                                 publisher.send("off");
+                                 publisher.send("on");
                                  
                                     }
                                   if( dataFloat  < 23 ){
@@ -91,10 +88,12 @@ public class SmartHouse {
                                  if( dataInt  == 1 ){
                                  publisher.send("lights", ZMQ.SNDMORE); 
                                  System.out.println("Ouvrir Lumières");
+                                 publisher.send("on");
                                     }
                                   if( dataInt  == 0 ){
                                  publisher.send("lights", ZMQ.SNDMORE); 
                                  System.out.println("Éteindre Lumières");
+                                 publisher.send("off");
                                     }
                              }
                             
@@ -105,26 +104,28 @@ public class SmartHouse {
                                 if( "time".equals(topic))  {
                                     System.out.println(topic + " -> " + data);
                                  if( "23:00:00".equals(data) ){
-                                  
+                                  publisher.send("door_lock", ZMQ.SNDMORE);
                                  System.out.println("Activer Verrouillage des portes");
+                                  publisher.send("on");
                                     }
                                   if( "7:00:00".equals(data) ){
-                                 
+                                  publisher.send("door_lock", ZMQ.SNDMORE);
                                  System.out.println("Désactiver Verrouillage des portes");
+                                  publisher.send("off");
                                     }
                              }
                                 
                                 
-                                
+                               
                             //topic door_lock_sensor 
                                 if( "door_lock_sensor".equals(topic))  {
                                     
                                   
                              }
                             
-
+                                 
                        }
-
+                                       
                    
         
 	}
