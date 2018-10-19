@@ -1,7 +1,6 @@
 package ca.uqam;
 
 
-import java.util.Random;
 import org.zeromq.SocketType;
 import org.zeromq.ZContext;
 import org.zeromq.ZMQ;
@@ -11,9 +10,7 @@ public class SmartHouse {
 	
 	public static void main(String [] args) throws InterruptedException {
 		
-		////ZMQ.Socket publisher;
-		//ZMQ.Socket subscriber;
-		
+
                  
                         
 		try (ZContext context = new ZContext()) {
@@ -46,13 +43,8 @@ public class SmartHouse {
                                 break; 
                             String data = subscriber.recvStr(); 
                             
-                           	
-                            
-                            
-                            //System.out.println(topic);
-                            //System.out.println(data);
-                            
-                            
+
+                            //topic temperature
                              if( "temperature".equals(topic))  {
                                  Float dataFloat = Float.parseFloat(data);
                                                   
@@ -71,7 +63,6 @@ public class SmartHouse {
                                      System.out.println("Arrêter le chauffage ");
                                      publisher.send("on");
                                      
-                                 //System.out.println(topic + " -> " + data);
                         
                                     }
                                   if( dataFloat  > 23 ){
@@ -90,6 +81,9 @@ public class SmartHouse {
                              }
                             
                              
+                             
+                             
+                             //topic activity
                                 if( "activity".equals(topic))  {
                                     int dataInt = Integer.parseInt(data);
                                     System.out.println(topic + " -> " + data);
@@ -104,37 +98,31 @@ public class SmartHouse {
                                     }
                              }
                             
+                                
+                                
+                                
+                              //topic time  
                                 if( "time".equals(topic))  {
                                     System.out.println(topic + " -> " + data);
                                  if( "23:00:00".equals(data) ){
                                   
                                  System.out.println("Activer Verrouillage des portes");
                                     }
-                                 //int dataInt = Integer.parseInt(data);
                                   if( "7:00:00".equals(data) ){
                                  
                                  System.out.println("Désactiver Verrouillage des portes");
                                     }
                              }
-                            
+                                
+                                
+                                
+                            //topic door_lock_sensor 
                                 if( "door_lock_sensor".equals(topic))  {
                                     
                                   
                              }
                             
-                             
-                             
-                            //System.out.println(topic + " -> " + data); 
-                            
 
-                           // publisher.send("lights", ZMQ.SNDMORE); 
-                          //  publisher.send("door_lock", ZMQ.SNDMORE); 
-                            
-                            
-                           
-                            
-                            
-                           // publisher.send("on"); 
                        }
 
                    
