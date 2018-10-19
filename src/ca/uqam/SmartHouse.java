@@ -1,5 +1,6 @@
 package ca.uqam;
 
+
 import java.util.Random;
 import org.zeromq.SocketType;
 import org.zeromq.ZContext;
@@ -37,6 +38,7 @@ public class SmartHouse {
                         subscriber.subscribe("time"); 
                         subscriber.subscribe("door_lock_sensor"); 
 
+                            
 
                         while (true) { 
                             String topic = subscriber.recvStr(); 
@@ -44,88 +46,85 @@ public class SmartHouse {
                                 break; 
                             String data = subscriber.recvStr(); 
                             
+                           	
                             
                             
-                            System.out.println(topic);
-                            System.out.println(data);
+                            //System.out.println(topic);
+                            //System.out.println(data);
                             
-                            Float dataInt = Float.parseFloat(data);
-                                 
                             
                              if( "temperature".equals(topic))  {
-                                 
-                                  
-                                 System.out.println(" eeeeeeeeeeeeeeeeeeeeeeeeeeeeentrer dans if ");
-                                 
-                                 System.out.println(data);
-                                
-                           
-                             
-                             
-                              System.out.println(dataInt);
-                                
-                             
-                             
-                                 if( dataInt  <  19){
+                                 Float dataFloat = Float.parseFloat(data);
+                                                  
+                                 if( dataFloat  <  19){
+                                     System.out.println(topic + " -> " + data);
+                                     publisher.send("heater", ZMQ.SNDMORE);
+                                     System.out.println("démarrer le chauffage ");
+                                     publisher.send("on");
                                      
-                                     System.out.println(" <19 ");
-                                 //publisher.send("heater", ZMQ.SNDMORE);
-                                 publisher.sendMore("heater");
-                                 publisher.send("on");
-                                 System.out.println(topic + " -> " + data);
+                                 
                         
                                     }
-                                  if( dataInt  > 23 ){
-                                 publisher.send("ac", ZMQ.SNDMORE); 
-                                 publisher.send("off");
+                                 if( dataFloat  > 19){
+                                     System.out.println(topic + " -> " + data);
+                                     publisher.send("heater", ZMQ.SNDMORE);
+                                     System.out.println("Arrêter le chauffage ");
+                                     publisher.send("on");
+                                     
+                                 //System.out.println(topic + " -> " + data);
+                        
                                     }
+                                  if( dataFloat  > 23 ){
+                                 publisher.send("ac", ZMQ.SNDMORE); 
+                                 System.out.println("Démarrer Air climatisé");
+                                 publisher.send("off");
+                                 
+                                    }
+                                  if( dataFloat  < 23 ){
+                                 publisher.send("ac", ZMQ.SNDMORE); 
+                                 System.out.println("Arrêter Air climatisé");
+                                 publisher.send("off");
+                                 
+                                    }
+                                  
                              }
                             
                              
                                 if( "activity".equals(topic))  {
-                                    
-                                    System.out.println(" eeeeeeeeeeeeeeeeeeeeeeeeeeeeentrer dans if ");
-                                    //int dataInt = Integer.parseInt(data);
+                                    int dataInt = Integer.parseInt(data);
+                                    System.out.println(topic + " -> " + data);
+                              
                                  if( dataInt  == 1 ){
                                  publisher.send("lights", ZMQ.SNDMORE); 
-                        
+                                 System.out.println("Ouvrir Lumières");
                                     }
                                   if( dataInt  == 0 ){
                                  publisher.send("lights", ZMQ.SNDMORE); 
+                                 System.out.println("Éteindre Lumières");
                                     }
                              }
                             
                                 if( "time".equals(topic))  {
-                                    System.out.println(" eeeeeeeeeeeeeeeeeeeeeeeeeeeeentrer dans if ");
-                                    
-                                    
-                                 if( data   == "on" ){
-                                 publisher.send("heater", ZMQ.SNDMORE); 
-                        
+                                    System.out.println(topic + " -> " + data);
+                                 if( "23:00:00".equals(data) ){
+                                  
+                                 System.out.println("Activer Verrouillage des portes");
                                     }
                                  //int dataInt = Integer.parseInt(data);
-                                  if( dataInt  > 23 ){
-                                 publisher.send("ac", ZMQ.SNDMORE); 
+                                  if( "7:00:00".equals(data) ){
+                                 
+                                 System.out.println("Désactiver Verrouillage des portes");
                                     }
                              }
                             
                                 if( "door_lock_sensor".equals(topic))  {
                                     
-                                    System.out.println(" eeeeeeeeeeeeeeeeeeeeeeeeeeeeentrer dans if ");
-                                    
-                                   // int dataInt = Integer.parseInt(data);
-                                 if( dataInt  <  19){
-                                 publisher.send("heater", ZMQ.SNDMORE); 
-                        
-                                    }
-                                  if( dataInt  > 23 ){
-                                 publisher.send("ac", ZMQ.SNDMORE); 
-                                    }
+                                  
                              }
                             
                              
                              
-                            System.out.println(topic + " -> " + data); 
+                            //System.out.println(topic + " -> " + data); 
                             
 
                            // publisher.send("lights", ZMQ.SNDMORE); 
