@@ -10,7 +10,7 @@ import org.zeromq.ZMQ.Socket;
 
 public class SmartHouse {
 
-    public static void main(String[] args) throws InterruptedException {
+    public static void main(String[] args) throws InterruptedException, IOException {
 
         try (ZContext context = new ZContext()) {
 
@@ -44,47 +44,43 @@ public class SmartHouse {
                 }
                 String data = subscriber.recvStr();
 
-                float thermostatValue;
-                String doorStatus;
+                
+                
 
-                try {
-
-                    String thermostatVal = readFile("./thermostat_request.json");
-                    thermostatValue = Float.parseFloat(thermostatVal);
-                    
-                    doorStatus = readFile("./door_request.json");
-
-                } catch (IOException ex) {
-                }
+                
 
                 //topic temperature
                 if ("temperature".equals(topic)) {
                     Float dataFloat = Float.parseFloat(data);
                     System.out.println("write to the file -> " + dataFloat);
                     writeFile("./thermostat.json", dataFloat);
-
-                    if (dataFloat < 19) {
-                        System.out.println(topic + " -> " + data);
+                    
+                    float thermostatValue;
+                    String thermostatVal = readFile("./thermostat_request.json");
+                    thermostatValue = Float.parseFloat(thermostatVal);
+                    
+                    if (thermostatValue < 19) {
+                        System.out.println(topic + " -> " + thermostatValue);
                         publisher.send("heater", ZMQ.SNDMORE);
                         System.out.println("Démarrage du chauffage");
                         publisher.send("on");
 
                     }
-                    if (dataFloat > 19) {
-                        System.out.println(topic + " -> " + data);
+                    if (thermostatValue > 19) {
+                        System.out.println(topic + " -> " + thermostatValue);
                         publisher.send("heater", ZMQ.SNDMORE);
                         System.out.println("Arrête du chauffage");
                         publisher.send("off");
 
                     }
 
-                    if (dataFloat > 23) {
+                    if (thermostatValue > 23) {
                         publisher.send("ac", ZMQ.SNDMORE);
                         System.out.println("Démarrer Air climatisé");
                         publisher.send("on");
 
                     }
-                    if (dataFloat < 23) {
+                    if (thermostatValue < 23) {
                         publisher.send("ac", ZMQ.SNDMORE);
                         System.out.println("Arrêter Air climatisé");
                         publisher.send("off");
@@ -112,13 +108,15 @@ public class SmartHouse {
 
                 //topic time  
                 if ("time".equals(topic)) {
+                     String doorStatus ;
                     System.out.println(topic + " -> " + data);
-                    if ("23:00:00".equals(data)) {
+                    doorStatus = readFile("./door_request.json");
+                    if ("23:00:00".equals(data)||"on".equals(doorStatus) )  {
                         publisher.send("door_lock", ZMQ.SNDMORE);
                         System.out.println("Activer Verrouillage des portes");
                         publisher.send("on");
                     }
-                    if ("7:00:00".equals(data)) {
+                    if ("7:00:00".equals(data)||"off".equals(doorStatus)) {
                         publisher.send("door_lock", ZMQ.SNDMORE);
                         System.out.println("Désactiver Verrouillage des portes");
                         publisher.send("off");
@@ -127,7 +125,9 @@ public class SmartHouse {
 
                 //topic door_lock_sensor 
                 if ("door_lock_sensor".equals(topic)) {
-
+                    String doorStatus;
+                    doorStatus = readFile("./door_request.json");
+                   
                 }
 
             }
