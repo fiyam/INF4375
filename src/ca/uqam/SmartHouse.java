@@ -91,9 +91,11 @@ public class SmartHouse {
 
                 //topic activity
                 if ("activity".equals(topic)) {
-                    int dataInt = Integer.parseInt(data);
+                    
                     System.out.println(topic + " -> " + data);
-
+                    
+                    int dataInt = Integer.parseInt(data); 
+                    writeFile("./status.json", dataInt);
                     if (dataInt == 1) {
                         publisher.send("lights", ZMQ.SNDMORE);
                         System.out.println("Ouvrir Lumières");
