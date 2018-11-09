@@ -143,20 +143,24 @@ public class Demo {
 
     private static void handlePutThermostat(HttpExchange he) throws IOException {
 
+        String response = "";
         String payload = readPayload(he);
         System.out.println("inside handlePutThermostat payload = " + payload);
 
         writeFile("./thermostat_request.json", payload);
 
         addResponseHeader(he);
-        he.sendResponseHeaders(200, 0);
+        he.sendResponseHeaders(200, response.length());
+        try (OutputStream os = he.getResponseBody()) {
+            os.write(response.getBytes());
+        }
     }
 
         private static void handleGetTemperature(HttpExchange he) throws IOException {
 
         String response;
         try {
-            response = readFile("./staus.json");
+            response = readFile("./thermostat_request.json");
         } catch (IOException ex) {
             he.sendResponseHeaders(400, 0);
             return;
@@ -172,31 +176,42 @@ public class Demo {
         
     private static void handleGetDoorLock(HttpExchange he) throws IOException {
 
+        System.out.println("inside handlePutThermostat 1");
+        
         String response;
         try {
-            response = readFile("./status.json");
+            response = readFile("./door_request.json");
         } catch (IOException ex) {
+            System.out.println("inside handlePutThermostat excep ");
             he.sendResponseHeaders(400, 0);
             return;
         }
 
-        addResponseHeader(he);
+        System.out.println("inside handlePutThermostat 2 " + response);
+        
+        //addResponseHeader(he);
         he.sendResponseHeaders(200, response.length());
         try (OutputStream os = he.getResponseBody()) {
             os.write(response.getBytes());
         }
-
     }
 
     private static void handlePutDoorLock(HttpExchange he) throws IOException {
 
+        String response = "";
+        
+        System.out.println("inside hereeeeeeeeeeee= ");
+        
         String payload = readPayload(he);
         System.out.println("inside handlePutThermostat payload = " + payload);
 
         writeFile("./door_request.json", payload);
 
-        addResponseHeader(he);
-        he.sendResponseHeaders(200, 0);
+        //addResponseHeader(he);
+        he.sendResponseHeaders(200, response.length());
+        try (OutputStream os = he.getResponseBody()) {
+            os.write(response.getBytes());
+        }
     }
 
     private static void handleGetPresence(HttpExchange he) throws IOException {

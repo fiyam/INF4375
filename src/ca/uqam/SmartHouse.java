@@ -44,6 +44,19 @@ public class SmartHouse {
                 }
                 String data = subscriber.recvStr();
 
+                float thermostatValue;
+                String doorStatus;
+
+                try {
+
+                    String thermostatVal = readFile("./thermostat_request.json");
+                    thermostatValue = Float.parseFloat(thermostatVal);
+                    
+                    doorStatus = readFile("./door_request.json");
+
+                } catch (IOException ex) {
+                }
+
                 //topic temperature
                 if ("temperature".equals(topic)) {
                     Float dataFloat = Float.parseFloat(data);
@@ -123,9 +136,14 @@ public class SmartHouse {
 
     }
 
+    private static String readFile(String fileName) throws IOException {
+        return new String(Files.readAllBytes(Paths.get(fileName)));
+
+    }
+
     private static void writeFile(String fileName, float value) {
 
-        String content = "{\"temperature\": \"" + value + "\"}";
+        String content = Float.toString(value);
 
         System.out.println("here");
 
