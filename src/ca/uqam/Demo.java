@@ -127,7 +127,7 @@ public class Demo {
 
         String response;
         try {
-            response = readFile("./thermostat.json");
+            response = readFile("./thermostat_request.json");
         } catch (IOException ex) {
             he.sendResponseHeaders(400, 0);
             return;
@@ -160,7 +160,7 @@ public class Demo {
 
         String response;
         try {
-            response = readFile("./thermostat_request.json");
+            response = readFile("./thermostat.json");
         } catch (IOException ex) {
             he.sendResponseHeaders(400, 0);
             return;
