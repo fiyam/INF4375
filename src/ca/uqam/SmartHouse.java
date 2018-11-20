@@ -1,6 +1,7 @@
 package ca.uqam;
 
 import java.io.IOException;
+import com.sendgrid.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import org.zeromq.SocketType;
@@ -13,7 +14,27 @@ public class SmartHouse {
     public static void main(String[] args) throws InterruptedException, IOException {
 
         try (ZContext context = new ZContext()) {
+            
+            Email from = new Email("khaled.elsheikh@gmail.com");
+            String subject = "La température monte ";
+            Email to = new Email("khaled.elsheikh@gmail.com");
+            Content content = new Content("text/plain", "La température monte au-dessus de 30 degrés ,");
+            Mail mail = new Mail(from, subject, to, content);
 
+            SendGrid sg = new SendGrid("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");
+            Request request = new Request();
+            try {
+                request.setMethod(Method.POST);
+                request.setEndpoint("mail/send");
+                request.setBody(mail.build());
+                Response response = sg.api(request);
+                System.out.println(response.getStatusCode());
+                System.out.println(response.getBody());
+                System.out.println(response.getHeaders());
+            } catch (IOException ex) {
+                throw ex;
+            }
+           
             Socket subscriber = context.createSocket(SocketType.SUB);
             if (args.length == 1) {
                 subscriber.connect(args[0]);
@@ -52,7 +73,7 @@ public class SmartHouse {
                 //topic temperature
                 if ("temperature".equals(topic)) {
                     Float dataFloat = Float.parseFloat(data);
-                    System.out.println("write to the file -> " + dataFloat);
+                    System.out.println( topic + " -> "+ dataFloat);
                     writeFile("./thermostat.json", dataFloat);
                     
                     float thermostatValue;
@@ -60,7 +81,7 @@ public class SmartHouse {
                     thermostatValue = Float.parseFloat(thermostatVal);
                     
                     if (thermostatValue < 19) {
-                        System.out.println(topic + " -> " + thermostatValue);
+                        System.out.println("temperature -> " + thermostatValue);
                         publisher.send("heater", ZMQ.SNDMORE);
                         System.out.println("Démarrage du chauffage");
                         publisher.send("on");
