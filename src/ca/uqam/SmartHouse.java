@@ -34,6 +34,23 @@ public class SmartHouse {
             } catch (IOException ex) {
                 throw ex;
             }
+            try {
+                SendGrid sg2 = new SendGrid("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");
+                Request request2 = new Request();
+                request2.setMethod(Method.GET);
+                request2.setEndpoint("stats");
+                request2.addQueryParam("aggregated_by", "day");
+                request2.addQueryParam("limit", "1");
+                request2.addQueryParam("start_date", "2018-11-20");
+                request2.addQueryParam("end_date", "2018-11-21");
+                request2.addQueryParam("offset", "1");
+                Response response2 = sg2.api(request2);
+                System.out.println(response2.getStatusCode());
+                System.out.println(response2.getBody());
+                System.out.println(response2.getHeaders());
+            } catch (IOException ex) {
+                throw ex;
+            }
            
             Socket subscriber = context.createSocket(SocketType.SUB);
             if (args.length == 1) {
