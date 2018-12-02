@@ -1,3 +1,4 @@
+package ca.uqam;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
@@ -11,6 +12,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.Executors;
 import jdk.nashorn.internal.parser.JSONParser;
 import org.zeromq.SocketType;
@@ -24,7 +26,8 @@ public class Demo {
     private static final String TEMPERATURE_URI = "/temperature";
     private static final String DOOR_LOCK_URI = "/door_lock";
     private static final String PRESENCE_URI = "/presence";
-
+    private static final String AUTH_URI = "/auth";
+    
     public static void main(String[] args) throws Exception {
         try (ZContext context = new ZContext()) {
 
@@ -53,7 +56,7 @@ public class Demo {
              * On utilise le port 8000 en localhost. 0 par dÃ©faut pour le
              * socket backlog, nul besoin de le changer dans le cadre du TP.
              */
-            HttpServer server = HttpServer.create(new InetSocketAddress(4444), 0);
+            HttpServer server = HttpServer.create(new InetSocketAddress(8000), 0);
             /**
              * On dÃ©finit un endpoint "/test" ainsi qu'un gestionnaire qui va
              * effectuer le traitement associÃ©.
@@ -118,7 +121,9 @@ public class Demo {
             } else if (requestUri.equalsIgnoreCase(PRESENCE_URI) && requestMethod.equalsIgnoreCase("GET")) {
                 System.out.println("will call handleGetPresence ...");
                 handleGetPresence(he);
-            }
+            }else if (requestUri.equalsIgnoreCase(AUTH_URI) && requestMethod.equalsIgnoreCase("POST")) {
+                System.out.println("will call handlePostAuth ...");
+                handlePostAuth(he);
 
         }
     }
@@ -231,7 +236,47 @@ public class Demo {
         }
 
     }
-
+        private static void handlePostAuth(HttpExchange he) throws IOException {
+            
+            
+            List<String> sessionKeyList = new ArrayList<>();
+            String sessionKey = UUID.randomUUID().toString();
+            sessionKeyList.add(sessionKey);
+            he.getResponseHeaders().add("Set-Cookie","SESSION_KEY_ID="+ sessionKey);
+            
+            String retrieveString = retrieveSessionKey(he);
+            System.out.println(retrieveString);
+            if (sessionKeyList.contains(retrieveString)){
+              System.out.println("valid");  
+            }
+            
+            String response = "hello world";
+            addResponseHeader(he);
+            
+            he.sendResponseHeaders(200, response.length());
+            try (OutputStream os = he.getResponseBody()) {
+                os.write(response.getBytes());
+            }
+        }
+        
+        private static String retrieveSessionKey(HttpExchange he){
+        
+            String sessionKey = null;
+            String auth = he.getRequestHeaders().getFirst("Authorization");
+            String hash = auth.substring("Basic".length());
+            System.out.println(hash); 
+            
+            List<String> cookieList = he.getRequestHeaders().getOrDefault("Cookie", null);
+            if (cookieList!= null){
+                for(String cookie : cookieList){
+                    if (cookie.contains("SESSION_KEY_ID")){
+                        sessionKey = cookie.substring("SESSION_KEY_ID".length()+1);
+                    }
+                }
+            }
+            return sessionKey;
+        }
+        
     private static String readPayload(HttpExchange he) throws IOException {
         BufferedInputStream bis = new BufferedInputStream(he.getRequestBody());
         ByteArrayOutputStream buf = new ByteArrayOutputStream();
@@ -311,4 +356,5 @@ public class Demo {
 //        }
 //
 //    }
+}
 }

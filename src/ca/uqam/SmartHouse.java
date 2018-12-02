@@ -17,8 +17,8 @@ public class SmartHouse {
             
             Email from = new Email("khaled.elsheikh@gmail.com");
             String subject = "Khaled Elsheikh: ";
-            Email to = new Email("khaled.elsheikh@gmail.com");
-            Content content = new Content("text/plain", "La température monte au-dessus de 30 degrés ,");
+            Email to = new Email("inf4375.2018@gmail.com");
+            Content content = new Content("text/plain", "Alert! La température monte au-dessus de 30 degrés ,");
             Mail mail = new Mail(from, subject, to, content);
 
             SendGrid sg = new SendGrid("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");
@@ -83,7 +83,7 @@ public class SmartHouse {
                              request.addQueryParam("aggregated_by", "day");
                              request.addQueryParam("limit", "1");
                              request.addQueryParam("start_date", "2018-11-19");
-                             request.addQueryParam("end_date", "2018-11-22");
+                             request.addQueryParam("end_date", "2018-11-23");
                              request.addQueryParam("offset", "1");
                              Response response2 = sg.api(request);
                              System.out.println(response2.getStatusCode());
