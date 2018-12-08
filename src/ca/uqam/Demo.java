@@ -27,7 +27,7 @@ public class Demo {
     private static final String DOOR_LOCK_URI = "/door_lock";
     private static final String PRESENCE_URI = "/presence";
     private static final String AUTH_URI = "/auth";
-    
+
     public static void main(String[] args) throws Exception {
         try (ZContext context = new ZContext()) {
 
@@ -86,6 +86,9 @@ public class Demo {
      */
     static class MyHandler implements HttpHandler {
 
+        
+        static List<String> sessionKeyList = new ArrayList<>();
+         
         @Override
         public void handle(HttpExchange he) throws IOException {
             /**
@@ -121,228 +124,254 @@ public class Demo {
             } else if (requestUri.equalsIgnoreCase(PRESENCE_URI) && requestMethod.equalsIgnoreCase("GET")) {
                 System.out.println("will call handleGetPresence ...");
                 handleGetPresence(he);
-            }else if (requestUri.equalsIgnoreCase(AUTH_URI) && requestMethod.equalsIgnoreCase("POST")) {
+            } else if (requestUri.equalsIgnoreCase(AUTH_URI) && requestMethod.equalsIgnoreCase("POST")) {
                 System.out.println("will call handlePostAuth ...");
                 handlePostAuth(he);
 
-        }
-    }
-
-    private static void handleGetThermostat(HttpExchange he) throws IOException {
-
-        String response;
-        try {
-            response = readFile("./thermostat_request.json");
-        } catch (IOException ex) {
-            he.sendResponseHeaders(400, 0);
-            return;
-        }
-
-        addResponseHeader(he);
-        he.sendResponseHeaders(200, response.length());
-        try (OutputStream os = he.getResponseBody()) {
-            os.write(response.getBytes());
-        }
-
-    }
-
-    private static void handlePutThermostat(HttpExchange he) throws IOException {
-
-        String response = "";
-        String payload = readPayload(he);
-        System.out.println("inside handlePutThermostat payload = " + payload);
-
-        writeFile("./thermostat_request.json", payload);
-
-        addResponseHeader(he);
-        he.sendResponseHeaders(200, response.length());
-        try (OutputStream os = he.getResponseBody()) {
-            os.write(response.getBytes());
-        }
-    }
-
-        private static void handleGetTemperature(HttpExchange he) throws IOException {
-
-        String response;
-        try {
-            response = readFile("./thermostat.json");
-        } catch (IOException ex) {
-            he.sendResponseHeaders(400, 0);
-            return;
-        }
-
-        addResponseHeader(he);
-        he.sendResponseHeaders(200, response.length());
-        try (OutputStream os = he.getResponseBody()) {
-            os.write(response.getBytes());
-        }
-
-    }
-        
-    private static void handleGetDoorLock(HttpExchange he) throws IOException {
-
-        System.out.println("inside handlePutThermostat 1");
-        
-        String response;
-        try {
-            response = readFile("./door_request.json");
-        } catch (IOException ex) {
-            System.out.println("inside handlePutThermostat excep ");
-            he.sendResponseHeaders(400, 0);
-            return;
-        }
-
-        System.out.println("inside handlePutThermostat 2 " + response);
-        
-        //addResponseHeader(he);
-        he.sendResponseHeaders(200, response.length());
-        try (OutputStream os = he.getResponseBody()) {
-            os.write(response.getBytes());
-        }
-    }
-
-    private static void handlePutDoorLock(HttpExchange he) throws IOException {
-
-        String response = "";
-        
-        System.out.println("inside hereeeeeeeeeeee= ");
-        
-        String payload = readPayload(he);
-        System.out.println("inside handlePutThermostat payload = " + payload);
-
-        writeFile("./door_request.json", payload);
-
-        //addResponseHeader(he);
-        he.sendResponseHeaders(200, response.length());
-        try (OutputStream os = he.getResponseBody()) {
-            os.write(response.getBytes());
-        }
-    }
-
-    private static void handleGetPresence(HttpExchange he) throws IOException {
-
-        String response;
-        try {
-            response = readFile("./status.json");
-        } catch (IOException ex) {
-            he.sendResponseHeaders(400, 0);
-            return;
-        }
-
-        addResponseHeader(he);
-        he.sendResponseHeaders(200, response.length());
-        try (OutputStream os = he.getResponseBody()) {
-            os.write(response.getBytes());
-        }
-
-    }
-        private static void handlePostAuth(HttpExchange he) throws IOException {
-            
-            
-            List<String> sessionKeyList = new ArrayList<>();
-            String sessionKey = UUID.randomUUID().toString();
-            sessionKeyList.add(sessionKey);
-            he.getResponseHeaders().add("Set-Cookie","SESSION_KEY_ID="+ sessionKey);
-            
-            String retrieveString = retrieveSessionKey(he);
-            System.out.println(retrieveString);
-            if (sessionKeyList.contains(retrieveString)){
-              System.out.println("valid");  
             }
+        }
+
+        private static void handleGetThermostat(HttpExchange he) throws IOException {
+
             
-            String response = "hello world";
+            
+            
+            String response;
+            try {
+                response = readFile("./thermostat_request.json");
+            } catch (IOException ex) {
+                he.sendResponseHeaders(400, 0);
+                return;
+            }
+
             addResponseHeader(he);
-            
+            he.sendResponseHeaders(200, response.length());
+            try (OutputStream os = he.getResponseBody()) {
+                os.write(response.getBytes());
+            }
+
+        }
+
+        private static void handlePutThermostat(HttpExchange he) throws IOException {
+
+            String response = "";
+            String payload = readPayload(he);
+            System.out.println("inside handlePutThermostat payload = " + payload);
+
+            writeFile("./thermostat_request.json", payload);
+
+            addResponseHeader(he);
             he.sendResponseHeaders(200, response.length());
             try (OutputStream os = he.getResponseBody()) {
                 os.write(response.getBytes());
             }
         }
-        
-        private static String retrieveSessionKey(HttpExchange he){
-        
-            String sessionKey = null;
-            String auth = he.getRequestHeaders().getFirst("Authorization");
-            String hash = auth.substring("Basic".length());
-            System.out.println(hash); 
+
+        private static void handleGetTemperature(HttpExchange he) throws IOException {
+             String retrieveString = retrieveSessionKey(he);
+                    System.out.println(retrieveString);
+                   // System.out.println(sessionKey);
+
+                    if (sessionKeyList.contains(retrieveString)) {
+                        System.out.println("valid");
+                        addResponseHeader(he);
+                        he.sendResponseHeaders(200, 0);
+                        he.close();
+                    }else{
+                        he.sendResponseHeaders(401, 0);
+                        he.close();
+                    }
             
+
+        }
+
+        private static void handleGetDoorLock(HttpExchange he) throws IOException {
+
+            System.out.println("inside handlePutThermostat 1");
+
+            String response;
+            try {
+                response = readFile("./door_request.json");
+            } catch (IOException ex) {
+                System.out.println("inside handlePutThermostat excep ");
+                he.sendResponseHeaders(400, 0);
+                return;
+            }
+
+            System.out.println("inside handlePutThermostat 2 " + response);
+
+            //addResponseHeader(he);
+            he.sendResponseHeaders(200, response.length());
+            try (OutputStream os = he.getResponseBody()) {
+                os.write(response.getBytes());
+            }
+        }
+
+        private static void handlePutDoorLock(HttpExchange he) throws IOException {
+
+            String response = "";
+
+            System.out.println("inside hereeeeeeeeeeee= ");
+
+            String payload = readPayload(he);
+            System.out.println("inside handlePutThermostat payload = " + payload);
+
+            writeFile("./door_request.json", payload);
+
+            addResponseHeader(he);
+            he.sendResponseHeaders(200, response.length());
+            try (OutputStream os = he.getResponseBody()) {
+                os.write(response.getBytes());
+            }
+        }
+
+        private static void handleGetPresence(HttpExchange he) throws IOException {
+
+            String response;
+            try {
+                response = readFile("./status.json");
+            } catch (IOException ex) {
+                he.sendResponseHeaders(400, 0);
+                return;
+            }
+
+            addResponseHeader(he);
+            he.sendResponseHeaders(200, response.length());
+            try (OutputStream os = he.getResponseBody()) {
+                os.write(response.getBytes());
+            }
+
+        }
+
+        private static void handlePostAuth(HttpExchange he) throws IOException {
+
+            String auth = he.getRequestHeaders().getFirst("Authorization");
+            if (auth == null) {
+                String response = "champs sont manquants ";
+                addResponseHeader(he);
+
+                he.sendResponseHeaders(400, 0);
+                he.close();
+            } else {
+                String hash = auth.substring("Basic ".length());
+
+                System.out.println(hash);
+
+                if ("aW5mOjQzNDM=".equals(hash)) {
+
+                   
+                    String sessionKey = UUID.randomUUID().toString();
+                    sessionKeyList.add(sessionKey);
+                    he.getResponseHeaders().add("Set-Cookie", "SESSION_KEY_ID=" + sessionKey);
+/*
+                    
+*/
+                    String response = "Le nom d’utilisateur et le mot de passe sont valides";
+                    addResponseHeader(he);
+
+                    he.sendResponseHeaders(200, 0);
+
+                    try (OutputStream os = he.getResponseBody()) {
+                        os.write(response.getBytes());
+                    }
+                } else if (!("aW5mOjQzNDM=".equals(hash))) {
+                    String response = "le nom d’utilisateur ou le mot de passe n’est pas bon ";
+                    addResponseHeader(he);
+
+                    he.sendResponseHeaders(401, 0);
+                    try (OutputStream os = he.getResponseBody()) {
+                        os.write(response.getBytes());
+                    }
+                    he.close();
+
+                }
+
+            }
+
+        }
+
+        private static String retrieveSessionKey(HttpExchange he) {
+
+            String sessionKey = null;
+
             List<String> cookieList = he.getRequestHeaders().getOrDefault("Cookie", null);
-            if (cookieList!= null){
-                for(String cookie : cookieList){
-                    if (cookie.contains("SESSION_KEY_ID")){
-                        sessionKey = cookie.substring("SESSION_KEY_ID".length()+1);
+            if (cookieList != null) {
+                for (String cookie : cookieList) {
+                    if (cookie.contains("SESSION_KEY_ID")) {
+                        sessionKey = cookie.substring("SESSION_KEY_ID".length() + 1);
                     }
                 }
             }
             return sessionKey;
         }
-        
-    private static String readPayload(HttpExchange he) throws IOException {
-        BufferedInputStream bis = new BufferedInputStream(he.getRequestBody());
-        ByteArrayOutputStream buf = new ByteArrayOutputStream();
-        int result = bis.read();
-        while (result != -1) {
-            byte b = (byte) result;
-            buf.write(b);
-            result = bis.read();
+
+        private static String readPayload(HttpExchange he) throws IOException {
+            BufferedInputStream bis = new BufferedInputStream(he.getRequestBody());
+            ByteArrayOutputStream buf = new ByteArrayOutputStream();
+            int result = bis.read();
+            while (result != -1) {
+                byte b = (byte) result;
+                buf.write(b);
+                result = bis.read();
+            }
+            return buf.toString();
         }
-        return buf.toString();
-    }
 
-
-
-    private static void addResponseHeader(HttpExchange httpExchange) {
-        List<String> contentTypeValue = new ArrayList<>();
-        contentTypeValue.add("application/json");
-        httpExchange.getResponseHeaders().put("Content-Type", contentTypeValue);
-    }
-
-    private static String readFile(String fileName) throws IOException {
-        return new String(Files.readAllBytes(Paths.get(fileName)));
-
-    }
-
-    private static void writeFile(String fileName, String content) {
-
-        try {
-            Files.write(Paths.get(fileName), content.getBytes());
-        } catch (IOException ex) {
-            System.out.println("Error: " + ex);
+        private static void addResponseHeader(HttpExchange httpExchange) {
+            List<String> contentTypeValue = new ArrayList<>();
+            contentTypeValue.add("application/json");
+            httpExchange.getResponseHeaders().put("Content-Type", contentTypeValue);
         }
-    }
 
-    /**
-     * Exemple de thread.
-     *
-     * Ci-dessous, un gestionnaire de Thread.
-     */
-    static class ThreadManager {
+        private static String readFile(String fileName) throws IOException {
+            return new String(Files.readAllBytes(Paths.get(fileName)));
+
+        }
+
+        private static void writeFile(String fileName, String content) {
+
+            try {
+                Files.write(Paths.get(fileName), content.getBytes());
+            } catch (IOException ex) {
+                System.out.println("Error: " + ex);
+            }
+        }
 
         /**
-         * Ici, un seul thread, mais pour le TP, vous aurez besoin de 2 Threads,
-         * un pour le subscriber (ci-dessous) et un autre pour le serveur.
-         */
-        Thread subThread;
-
-        /**
-         * Constructeur initialisant la routine que le processus va utiliser,
+         * Exemple de thread.
          *
-         * @param subRunnable Routine pour le processus Subscriber
+         * Ci-dessous, un gestionnaire de Thread.
          */
-        public ThreadManager(Runnable subRunnable) {
-            this.subThread = new Thread(subRunnable);
-        }
-    }
+        static class ThreadManager {
 
-    /**
-     * Ci-dessous un exemple de routine pour le subscriber, le plus important
-     * est que dans la mÃ©thode run, vous lanciez le processus d'execution
-     * d'Ã©coute de message ou d'attente de reception de topic.
-     *
-     * Dans ce cas-ci c'est pour le Subscriber, vous aurez Ã©galement une autre
-     * routine qui va Ãªter dÃ©dier au processus serveur, qui quand Ã  lui se
-     * charger va dÃ©marrer le serveur. (la mÃ©thode start citÃ© plus haut).
-     */
+            /**
+             * Ici, un seul thread, mais pour le TP, vous aurez besoin de 2
+             * Threads, un pour le subscriber (ci-dessous) et un autre pour le
+             * serveur.
+             */
+            Thread subThread;
+
+            /**
+             * Constructeur initialisant la routine que le processus va
+             * utiliser,
+             *
+             * @param subRunnable Routine pour le processus Subscriber
+             */
+            public ThreadManager(Runnable subRunnable) {
+                this.subThread = new Thread(subRunnable);
+            }
+        }
+
+        /**
+         * Ci-dessous un exemple de routine pour le subscriber, le plus
+         * important est que dans la mÃ©thode run, vous lanciez le processus
+         * d'execution d'Ã©coute de message ou d'attente de reception de topic.
+         *
+         * Dans ce cas-ci c'est pour le Subscriber, vous aurez Ã©galement une
+         * autre routine qui va Ãªter dÃ©dier au processus serveur, qui quand Ã 
+         * lui se charger va dÃ©marrer le serveur. (la mÃ©thode start citÃ© plus
+         * haut).
+         */
 //     static class SubscriberRunnable implements Runnable {
 //        private AppSubscriber subscriber;
 //
@@ -356,5 +385,5 @@ public class Demo {
 //        }
 //
 //    }
-}
+    }
 }
