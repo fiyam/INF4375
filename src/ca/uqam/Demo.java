@@ -133,22 +133,21 @@ public class Demo {
 
         private static void handleGetThermostat(HttpExchange he) throws IOException {
 
-            
-            
-            
-            String response;
-            try {
-                response = readFile("./thermostat_request.json");
-            } catch (IOException ex) {
-                he.sendResponseHeaders(400, 0);
-                return;
-            }
+            String retrieveString = retrieveSessionKey(he);
+                    System.out.println(retrieveString);
+                   // System.out.println(sessionKey);
 
-            addResponseHeader(he);
-            he.sendResponseHeaders(200, response.length());
-            try (OutputStream os = he.getResponseBody()) {
-                os.write(response.getBytes());
-            }
+                    if (sessionKeyList.contains(retrieveString)) {
+                        System.out.println("valid");
+                        addResponseHeader(he);
+                        he.sendResponseHeaders(200, 0);
+                        he.close();
+                    }else{
+                        he.sendResponseHeaders(401, 0);
+                        he.close();
+                    }
+            
+           
 
         }
 
